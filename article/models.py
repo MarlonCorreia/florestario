@@ -4,7 +4,7 @@ from author.models import Author
 # Create your models here.
 class Article(models.Model):
     id = models.BigAutoField(primary_key=True)
-    author = models.ManyToManyField(Author)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
     title = models.CharField(max_length=100)
     category = models.TextField(max_length=100)
     summary = models.TextField(max_length=200)
