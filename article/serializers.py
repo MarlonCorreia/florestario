@@ -1,4 +1,3 @@
-from django.db import models
 from rest_framework import serializers
 from article.models import Article
 from author.models import Author
@@ -17,3 +16,16 @@ class ArticleSerializer(serializers.ModelSerializer):
             raise Exception
         except:
             raise serializers.ValidationError("author field not set or invalid")
+
+class AnonArticleSerializer(ArticleSerializer):
+    class Meta:
+        model = Article
+        fields = (
+            'id',
+            'title',
+            'category',
+            'summary',
+            'first_paragraph',
+            'author'
+        )
+        depth = 1
