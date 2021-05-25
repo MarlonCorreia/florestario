@@ -1,14 +1,27 @@
 from django.http import Http404
+from rest_framework.authtoken.models import Token
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.authentication import TokenAuthentication
+
 from article.models import Article, Author
-from article.serializers import ArticleSerializer
+from article.serializers import ArticleSerializer, AnonArticleSerializer
 
 
 class ArticleList(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = [TokenAuthentication]
+
     def get(self, request):
         articles = Article.objects.all()
-        data = ArticleSerializer(articles, many=True).data
+
+        if is_anon(request):
+            data = AnonArticleSerializer(articles, many=True).data
+        else:
+            data = ArticleSerializer(articles, many=True).data        
+
         return Response(data, status=200)
     
     def post(self, request):
@@ -22,10 +35,18 @@ class ArticleList(APIView):
             
 
 class ArticleView(APIView):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    authentication_classes = [TokenAuthentication]
+
     def get(self, request, pk):
         article = self.get_object(pk)
-        data = ArticleSerializer(article).data
-        return Response(data, status=200)       
+
+        if is_anon(request):
+            data = AnonArticleSerializer(article)
+        else:
+            data = ArticleSerializer(article)
+
+        return Response(data.data, status=200)       
 
     def delete(self, request, pk):
         article = self.get_object(pk)
@@ -46,3 +67,8 @@ class ArticleView(APIView):
             return Article.objects.get(pk=pk)
         except Article.DoesNotExist:
             raise Http404 
+
+def is_anon(request):
+    if request.auth is None:
+        return True
+    return False
