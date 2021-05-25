@@ -1,11 +1,18 @@
 from django.http.response import Http404
+
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.authentication import TokenAuthentication
+
 from author.serializers import AuthorSerializer
 from author.models import Author
 
 
 class AuthorList(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+
     def get(self, requets):
         authors = Author.objects.all()
         data = AuthorSerializer(authors, many=True).data
@@ -19,6 +26,9 @@ class AuthorList(APIView):
         return Response(serializer.errors, status=400)
 
 class AuthorView(APIView):
+    permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    
     def get(self, request, pk):
         author = self.get_object(pk)
         data = AuthorSerializer(author).data
