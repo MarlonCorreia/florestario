@@ -1,3 +1,4 @@
+from django.db.models import fields
 from django.http import Http404
 from rest_framework.authtoken.models import Token
 
@@ -15,7 +16,11 @@ class ArticleList(APIView):
     authentication_classes = [TokenAuthentication]
 
     def get(self, request):
-        articles = Article.objects.all()
+        category = request.query_params.get('category')
+        if category:
+            articles = Article.objects.filter(category=category)
+        else:
+            articles = Article.objects.all()
 
         if is_anon(request):
             data = AnonArticleSerializer(articles, many=True).data
