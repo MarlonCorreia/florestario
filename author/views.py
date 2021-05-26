@@ -15,14 +15,14 @@ class AuthorList(APIView):
 
     def get(self, requets):
         authors = Author.objects.all()
-        data = AuthorSerializer(authors, many=True).data
-        return Response(data, status=200)
+        serializer = AuthorSerializer(authors, many=True).data
+        return Response(serializer)
 
     def post(self, request):
         serializer = AuthorSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=201)
+            return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
 class AuthorView(APIView):
@@ -31,8 +31,8 @@ class AuthorView(APIView):
     
     def get(self, request, pk):
         author = self.get_object(pk)
-        data = AuthorSerializer(author).data
-        return Response(data, status=200)
+        serializer = AuthorSerializer(author).data
+        return Response(serializer)
     
     def delete(self, request, pk):
         author = self.get_object(pk)
@@ -45,7 +45,7 @@ class AuthorView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=200)
+            return Response(serializer.data)
         return Response(serializer.errors, status=400)
 
     def get_object(self, pk):

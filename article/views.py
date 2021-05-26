@@ -1,10 +1,8 @@
-from django.db.models import fields
 from django.http import Http404
-from rest_framework.authtoken.models import Token
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.authentication import TokenAuthentication
 
 from article.models import Article, Author
@@ -23,18 +21,18 @@ class ArticleList(APIView):
             articles = Article.objects.all()
 
         if is_anon(request):
-            data = AnonArticleSerializer(articles, many=True).data
+            serializer = AnonArticleSerializer(articles, many=True).data
         else:
-            data = ArticleSerializer(articles, many=True).data        
+            serializer = ArticleSerializer(articles, many=True).data        
 
-        return Response(data, status=200)
+        return Response(serializer)
     
     def post(self, request):
         serializer = ArticleSerializer(data=request.data)
 
         if serializer.is_valid() and serializer.check_author_id(request.data):
             serializer.save(author=Author.objects.get(id=request.data["author"]))
-            return Response(serializer.data, status=200)
+            return Response(serializer.data)
         return Response(serializer.errors, status=400)
     
             
@@ -47,16 +45,16 @@ class ArticleView(APIView):
         article = self.get_object(pk)
 
         if is_anon(request):
-            data = AnonArticleSerializer(article)
+            serializer = AnonArticleSerializer(article).data
         else:
-            data = ArticleSerializer(article)
+            serializer = ArticleSerializer(article).data
 
-        return Response(data.data, status=200)       
+        return Response(serializer)       
 
     def delete(self, request, pk):
         article = self.get_object(pk)
         article.delete()
-        return Response(status=204)
+        return Response(status=200)
     
     def put(self, request, pk):
         article = self.get_object(pk)
@@ -64,7 +62,7 @@ class ArticleView(APIView):
         serializer = ArticleSerializer(article, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=200)
+            return Response(serializer.data)
         return Response(serializer.errors, status=400)
     
     def get_object(self, pk):
