@@ -5,7 +5,7 @@ from author.models import Author
 class Article(models.Model):
     id = models.BigAutoField(primary_key=True)
     author = models.ForeignKey(Author, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     category = models.TextField(max_length=100)
     summary = models.TextField(max_length=200)
     first_paragraph = models.TextField()
